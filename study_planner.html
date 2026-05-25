@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Colour-Coded Study Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --math: #FFF2CC;
+    --math-border: #D4A017;
+    --math-text: #7A5C00;
+    --phys: #EAD1DC;
+    --phys-border: #B5628B;
+    --phys-text: #6B2244;
+    --geo: #D9D2E9;
+    --geo-border: #7B6BAB;
+    --geo-text: #3D2F7A;
+    --life: #D9EAD3;
+    --life-border: #5E9C6A;
+    --life-text: #2A5C34;
+    --eng: #D0E0FF;
+    --eng-border: #4A6FC7;
+    --eng-text: #1A3A8C;
+    --afr: #FCE5CD;
+    --afr-border: #C87941;
+    --afr-text: #7A3D0A;
+    --lo: #CFE2F3;
+    --lo-border: #3A87C4;
+    --lo-text: #0A3F6E;
+    --fal: #F4CCCC;
+    --fal-border: #B44040;
+    --fal-text: #6B1414;
+    --bg: #F8F6F0;
+    --card: #FFFFFF;
+    --text: #1A1A1A;
+    --muted: #6B6560;
+    --border: #E2DDD5;
+    --exam-bg: #FFF8E8;
+    --exam-border: #E8A920;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  header {
+    background: #1A1A2E;
+    padding: 2rem 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.75rem;
+    color: #F5F0E8;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
+  header p {
+    font-size: 0.8rem;
+    color: #9990B8;
+    margin-top: 0.25rem;
+  }
+
+  .header-stats {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #E8D5FF;
+  }
+
+  .stat-label {
+    font-size: 0.7rem;
+    color: #9990B8;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .controls {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .controls label {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .filter-pills {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    flex: 1;
+  }
+
+  .pill {
+    padding: 0.3rem 0.75rem;
+    border-radius: 99px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .pill.active { opacity: 1; }
+  .pill:not(.active) { opacity: 0.45; }
+  .pill:hover { opacity: 0.85; }
+
+  .pill-math   { background: var(--math); border-color: var(--math-border); color: var(--math-text); }
+  .pill-phys   { background: var(--phys); border-color: var(--phys-border); color: var(--phys-text); }
+  .pill-geo    { background: var(--geo);  border-color: var(--geo-border);  color: var(--geo-text); }
+  .pill-life   { background: var(--life); border-color: var(--life-border); color: var(--life-text); }
+  .pill-eng    { background: var(--eng);  border-color: var(--eng-border);  color: var(--eng-text); }
+  .pill-afr    { background: var(--afr);  border-color: var(--afr-border);  color: var(--afr-text); }
+  .pill-lo     { background: var(--lo);   border-color: var(--lo-border);   color: var(--lo-text); }
+  .pill-fal    { background: var(--fal);  border-color: var(--fal-border);  color: var(--fal-text); }
+  .pill-all    { background: #1A1A2E; border-color: #3A3A5E; color: #E8D5FF; }
+
+  .view-toggle {
+    display: flex;
+    gap: 0.25rem;
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 0.2rem;
+    border: 1px solid var(--border);
+  }
+
+  .view-btn {
+    padding: 0.3rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+
+  .view-btn.active {
+    background: var(--card);
+    color: var(--text);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* LIST VIEW */
+  .list-view { display: flex; flex-direction: column; gap: 0.4rem; }
+
+  .list-row {
+    display: grid;
+    grid-template-columns: 120px 90px 1fr 1fr 130px;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1.25rem;
+    background: var(--card);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    transition: transform 0.1s, box-shadow 0.1s;
+    cursor: default;
+  }
+
+  .list-row:hover {
+    transform: translateX(3px);
+    box-shadow: -3px 0 0 var(--subject-color, #ccc), 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .list-row.hidden { display: none; }
+
+  .list-row.exam-row {
+    background: var(--exam-bg);
+    border-color: var(--exam-border);
+  }
+
+  .col-date { font-size: 0.82rem; color: var(--muted); }
+  .col-day { font-size: 0.82rem; font-weight: 500; }
+  .col-subject { font-size: 0.9rem; font-weight: 600; }
+  .col-task { font-size: 0.82rem; color: var(--muted); }
+
+  .subject-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  .status-select {
+    font-size: 0.78rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--text);
+    width: 120px;
+  }
+
+  .status-select.done { background: #D9EAD3; border-color: #5E9C6A; color: #2A5C34; }
+  .status-select.in-progress { background: #FFF2CC; border-color: #D4A017; color: #7A5C00; }
+  .status-select.not-started { background: var(--bg); }
+
+  .list-header {
+    display: grid;
+    grid-template-columns: 120px 90px 1fr 1fr 130px;
+    gap: 1rem;
+    padding: 0.5rem 1.25rem;
+    font-size: 0.72rem;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .exam-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #FFF0C0;
+    border: 1px solid var(--exam-border);
+    color: #7A4F00;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .revision-badge {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* CALENDAR VIEW */
+  .calendar-view { display: none; }
+
+  .month-block { margin-bottom: 2.5rem; }
+
+  .month-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem;
+    color: var(--text);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .week-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.4rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .week-label {
+    text-align: center;
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.3rem 0;
+  }
+
+  .cal-cell {
+    min-height: 80px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem;
+    font-size: 0.72rem;
+    transition: box-shadow 0.15s;
+  }
+
+  .cal-cell:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .cal-cell.empty { background: transparent; border-color: transparent; }
+  .cal-cell.hidden-cell { display: none; }
+
+  .cal-date {
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .cal-entry {
+    padding: 2px 5px;
+    border-radius: 4px;
+    margin-bottom: 2px;
+    font-size: 0.68rem;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  .cal-entry.exam { border-left: 2px solid var(--exam-border); }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+    padding: 1rem 1.25rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.76rem;
+    color: var(--muted);
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  .progress-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .progress-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.85rem 1rem;
+  }
+
+  .progress-label { font-size: 0.72rem; color: var(--muted); margin-bottom: 4px; font-weight: 500; }
+  .progress-count { font-size: 1.3rem; font-weight: 600; }
+  .progress-bar-wrap { height: 4px; background: var(--bg); border-radius: 2px; margin-top: 6px; }
+  .progress-bar { height: 4px; border-radius: 2px; background: #1A1A2E; transition: width 0.3s; }
+
+  .task-input {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    color: var(--text);
+    background: transparent;
+    border: none;
+    border-bottom: 1.5px dashed var(--border);
+    padding: 2px 4px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.15s, background 0.15s;
+    border-radius: 0;
+  }
+  .task-input::placeholder { color: var(--muted); opacity: 0.6; }
+  .task-input:hover { border-bottom-color: #AAA; }
+  .task-input:focus {
+    border-bottom: 1.5px solid #1A1A2E;
+    background: rgba(0,0,0,0.03);
+    border-radius: 4px 4px 0 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>📚 Study Planner</h1>
+    <p>June – August 2026 Exam Preparation</p>
+  </div>
+  <div class="header-stats">
+    <div class="stat">
+      <div class="stat-num" id="total-days">71</div>
+      <div class="stat-label">Study Days</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="exam-count">—</div>
+      <div class="stat-label">Exams</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="done-count">0</div>
+      <div class="stat-label">Completed</div>
+    </div>
+  </div>
+</header>
+
+<div class="controls">
+  <label>Filter:</label>
+  <div class="filter-pills">
+    <div class="pill pill-all active" data-filter="all">All subjects</div>
+    <div class="pill pill-math active" data-filter="Mathematics">Mathematics</div>
+    <div class="pill pill-phys active" data-filter="Physical Sciences">Physical Sciences</div>
+    <div class="pill pill-geo active" data-filter="Geography">Geography</div>
+    <div class="pill pill-life active" data-filter="Life Sciences">Life Sciences</div>
+    <div class="pill pill-eng active" data-filter="English">English</div>
+    <div class="pill pill-afr active" data-filter="Afrikaans">Afrikaans</div>
+    <div class="pill pill-lo active" data-filter="Life Orientation">Life Orientation</div>
+    <div class="pill pill-fal active" data-filter="FAL">FAL</div>
+  </div>
+  <div class="view-toggle">
+    <button class="view-btn active" onclick="switchView('list')">List</button>
+    <button class="view-btn" onclick="switchView('calendar')">Calendar</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="progress-section" id="progress-cards"></div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#FFF2CC; border:1px solid #D4A017"></div> Mathematics</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#EAD1DC; border:1px solid #B5628B"></div> Physical Sciences</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#D9D2E9; border:1px solid #7B6BAB"></div> Geography</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#D9EAD3; border:1px solid #5E9C6A"></div> Life Sciences</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#D0E0FF; border:1px solid #4A6FC7"></div> English</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#FCE5CD; border:1px solid #C87941"></div> Afrikaans</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#CFE2F3; border:1px solid #3A87C4"></div> Life Orientation</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#F4CCCC; border:1px solid #B44040"></div> FAL</div>
+  </div>
+
+  <!-- LIST VIEW -->
+  <div class="list-view" id="list-view">
+    <div class="list-header">
+      <span>Date</span><span>Day</span><span>Subject</span><span>Task / Topic</span><span>Status</span>
+    </div>
+    <div id="list-rows"></div>
+  </div>
+
+  <!-- CALENDAR VIEW -->
+  <div class="calendar-view" id="cal-view"></div>
+
+</div>
+
+<script>
+const SUBJECTS = {
+  'Mathematics':            { bg: '#FFF2CC', border: '#D4A017', text: '#7A5C00', filter: 'Mathematics' },
+  'Physical Sciences':      { bg: '#EAD1DC', border: '#B5628B', text: '#6B2244', filter: 'Physical Sciences' },
+  'Geography':              { bg: '#D9D2E9', border: '#7B6BAB', text: '#3D2F7A', filter: 'Geography' },
+  'Life Sciences':          { bg: '#D9EAD3', border: '#5E9C6A', text: '#2A5C34', filter: 'Life Sciences' },
+  'Life Sciences Practical':{ bg: '#D9EAD3', border: '#5E9C6A', text: '#2A5C34', filter: 'Life Sciences' },
+  'English':                { bg: '#D0E0FF', border: '#4A6FC7', text: '#1A3A8C', filter: 'English' },
+  'Afrikaans':              { bg: '#FCE5CD', border: '#C87941', text: '#7A3D0A', filter: 'Afrikaans' },
+  'Life Orientation':       { bg: '#CFE2F3', border: '#3A87C4', text: '#0A3F6E', filter: 'Life Orientation' },
+  'FAL':                    { bg: '#F4CCCC', border: '#B44040', text: '#6B1414', filter: 'FAL' },
+};
+
+function getSubjectStyle(subject) {
+  for (const key of Object.keys(SUBJECTS)) {
+    if (subject && subject.startsWith(key.split(' ')[0]) && SUBJECTS[key]) {
+      for (const [k, v] of Object.entries(SUBJECTS)) {
+        if (subject.includes(k.split(' ')[0])) {
+          if (SUBJECTS[subject]) return SUBJECTS[subject];
+          if (SUBJECTS[k]) return SUBJECTS[k];
+        }
+      }
+    }
+  }
+  return SUBJECTS[subject] || { bg: '#F0EDE8', border: '#AAA', text: '#555', filter: 'other' };
+}
+
+function resolveStyle(subject) {
+  if (SUBJECTS[subject]) return SUBJECTS[subject];
+  for (const [key, val] of Object.entries(SUBJECTS)) {
+    if (subject && subject.startsWith(key)) return val;
+  }
+  return { bg: '#F0EDE8', border: '#AAA', text: '#555', filter: 'other' };
+}
+
+const data = [
+  { date: '01 Jun 2026', day: 'Monday',    subject: 'Mathematics',            task: '', },
+  { date: '02 Jun 2026', day: 'Tuesday',   subject: 'Physical Sciences',      task: '', },
+  { date: '03 Jun 2026', day: 'Wednesday', subject: 'Geography',              task: '', },
+  { date: '04 Jun 2026', day: 'Thursday',  subject: 'Life Sciences',          task: '', },
+  { date: '05 Jun 2026', day: 'Friday',    subject: 'Mathematics',            task: '', },
+  { date: '06 Jun 2026', day: 'Saturday',  subject: 'Physical Sciences',      task: '', },
+  { date: '07 Jun 2026', day: 'Sunday',    subject: 'Geography',              task: '', },
+  { date: '08 Jun 2026', day: 'Monday',    subject: 'Life Sciences',          task: '', },
+  { date: '09 Jun 2026', day: 'Tuesday',   subject: 'Mathematics',            task: '', },
+  { date: '10 Jun 2026', day: 'Wednesday', subject: 'Physical Sciences',      task: '', },
+  { date: '11 Jun 2026', day: 'Thursday',  subject: 'Geography',              task: '', },
+  { date: '12 Jun 2026', day: 'Friday',    subject: 'Life Sciences',          task: '', },
+  { date: '13 Jun 2026', day: 'Saturday',  subject: 'Mathematics',            task: '', },
+  { date: '14 Jun 2026', day: 'Sunday',    subject: 'Physical Sciences',      task: '', },
+  { date: '15 Jun 2026', day: 'Monday',    subject: 'Geography',              task: '', },
+  { date: '16 Jun 2026', day: 'Tuesday',   subject: 'Life Sciences',          task: '', },
+  { date: '17 Jun 2026', day: 'Wednesday', subject: 'Mathematics',            task: '', },
+  { date: '18 Jun 2026', day: 'Thursday',  subject: 'Physical Sciences',      task: '', },
+  { date: '19 Jun 2026', day: 'Friday',    subject: 'Geography',              task: '', },
+  { date: '20 Jun 2026', day: 'Saturday',  subject: 'Life Sciences',          task: '', },
+  { date: '21 Jun 2026', day: 'Sunday',    subject: 'Mathematics',            task: '', },
+  { date: '22 Jun 2026', day: 'Monday',    subject: 'Physical Sciences',      task: '', },
+  { date: '23 Jun 2026', day: 'Tuesday',   subject: 'Geography',              task: '', },
+  { date: '24 Jun 2026', day: 'Wednesday', subject: 'Life Sciences',          task: '', },
+  { date: '25 Jun 2026', day: 'Thursday',  subject: 'Mathematics',            task: '', },
+  { date: '26 Jun 2026', day: 'Friday',    subject: 'Physical Sciences',      task: '', },
+  { date: '27 Jun 2026', day: 'Saturday',  subject: 'Geography',              task: '', },
+  { date: '28 Jun 2026', day: 'Sunday',    subject: 'Life Sciences',          task: '', },
+  { date: '29 Jun 2026', day: 'Monday',    subject: 'Mathematics',            task: '', },
+  { date: '30 Jun 2026', day: 'Tuesday',   subject: 'Physical Sciences',      task: '', },
+  { date: '01 Jul 2026', day: 'Wednesday', subject: 'Geography',              task: '', },
+  { date: '02 Jul 2026', day: 'Thursday',  subject: 'Mathematics',            task: '', },
+  { date: '03 Jul 2026', day: 'Friday',    subject: 'Physical Sciences',      task: '', },
+  { date: '04 Jul 2026', day: 'Saturday',  subject: 'Life Sciences Practical',task: '', },
+  { date: '05 Jul 2026', day: 'Sunday',    subject: 'Life Sciences Practical',task: 'Revision + practice questions / past papers', },
+  { date: '06 Jul 2026', day: 'Monday',    subject: 'Life Sciences Practical',task: 'EXAM DAY', exam: true },
+  { date: '06 Jul 2026', day: 'Monday',    subject: 'English',                task: 'Revision + practice questions / past papers', },
+  { date: '07 Jul 2026', day: 'Tuesday',   subject: 'English P1',             task: 'EXAM DAY', exam: true },
+  { date: '08 Jul 2026', day: 'Wednesday', subject: 'Mathematics',            task: '', },
+  { date: '09 Jul 2026', day: 'Thursday',  subject: 'Physical Sciences',      task: '', },
+  { date: '10 Jul 2026', day: 'Friday',    subject: 'Life Sciences',          task: '', },
+  { date: '11 Jul 2026', day: 'Saturday',  subject: 'Mathematics',            task: '', },
+  { date: '12 Jul 2026', day: 'Sunday',    subject: 'Physical Sciences',      task: '', },
+  { date: '13 Jul 2026', day: 'Monday',    subject: 'Life Sciences',          task: '', },
+  { date: '14 Jul 2026', day: 'Tuesday',   subject: 'Afrikaans',              task: 'Revision + practice questions / past papers', },
+  { date: '15 Jul 2026', day: 'Wednesday', subject: 'Afrikaans P1',           task: 'EXAM DAY', exam: true },
+  { date: '15 Jul 2026', day: 'Wednesday', subject: 'Life Sciences',          task: 'Revision + practice questions / past papers', },
+  { date: '16 Jul 2026', day: 'Thursday',  subject: 'Life Sciences',          task: 'EXAM DAY', exam: true },
+  { date: '16 Jul 2026', day: 'Thursday',  subject: 'Mathematics',            task: 'Revision + practice questions / past papers', },
+  { date: '17 Jul 2026', day: 'Friday',    subject: 'Mathematics P1',         task: 'EXAM DAY', exam: true },
+  { date: '18 Jul 2026', day: 'Saturday',  subject: 'Physical Sciences P1',   task: '', },
+  { date: '19 Jul 2026', day: 'Sunday',    subject: 'Physical Sciences P1',   task: 'Revision + practice questions / past papers', },
+  { date: '20 Jul 2026', day: 'Monday',    subject: 'Physical Sciences P1',   task: 'EXAM DAY', exam: true },
+  { date: '21 Jul 2026', day: 'Tuesday',   subject: 'Geography',              task: '', },
+  { date: '22 Jul 2026', day: 'Wednesday', subject: 'Geography & English',    task: 'Revision + practice questions / past papers', },
+  { date: '23 Jul 2026', day: 'Thursday',  subject: 'English P2',             task: 'EXAM DAY', exam: true },
+  { date: '23 Jul 2026', day: 'Thursday',  subject: 'Geography',              task: 'Revision + practice questions / past papers', },
+  { date: '24 Jul 2026', day: 'Friday',    subject: 'Geography',              task: 'EXAM DAY', exam: true },
+  { date: '25 Jul 2026', day: 'Saturday',  subject: 'Physical Sciences P2',   task: '', },
+  { date: '26 Jul 2026', day: 'Sunday',    subject: 'Physical Sciences P2',   task: 'Revision + practice questions / past papers', },
+  { date: '27 Jul 2026', day: 'Monday',    subject: 'Physical Sciences P2',   task: 'EXAM DAY', exam: true },
+  { date: '28 Jul 2026', day: 'Tuesday',   subject: 'Life Orientation',       task: 'Revision + practice questions / past papers', },
+  { date: '29 Jul 2026', day: 'Wednesday', subject: 'Life Orientation',       task: 'EXAM DAY', exam: true },
+  { date: '29 Jul 2026', day: 'Wednesday', subject: 'Life Sciences',          task: 'Revision + practice questions / past papers', },
+  { date: '30 Jul 2026', day: 'Thursday',  subject: 'Life Sciences P2',       task: 'EXAM DAY', exam: true },
+  { date: '30 Jul 2026', day: 'Thursday',  subject: 'Mathematics',            task: 'Revision + practice questions / past papers', },
+  { date: '31 Jul 2026', day: 'Friday',    subject: 'Mathematics P2',         task: 'EXAM DAY', exam: true },
+  { date: '01 Aug 2026', day: 'Saturday',  subject: 'FAL',                    task: '', },
+  { date: '02 Aug 2026', day: 'Sunday',    subject: 'FAL P2',                 task: '', },
+  { date: '03 Aug 2026', day: 'Monday',    subject: 'FAL P2',                 task: 'Revision + practice questions / past papers', },
+  { date: '04 Aug 2026', day: 'Tuesday',   subject: 'FAL P2',                 task: 'EXAM DAY', exam: true },
+];
+
+const statuses = {};
+const tasks = {};
+data.forEach((row, i) => { statuses[i] = 'not-started'; tasks[i] = row.task || ''; });
+
+function saveStatuses() {
+  try { localStorage.setItem('sp_statuses', JSON.stringify(statuses)); } catch(e) {}
+}
+function loadStatuses() {
+  try {
+    const s = JSON.parse(localStorage.getItem('sp_statuses') || '{}');
+    Object.assign(statuses, s);
+  } catch(e) {}
+}
+function saveTasks() {
+  try { localStorage.setItem('sp_tasks', JSON.stringify(tasks)); } catch(e) {}
+}
+function loadTasks() {
+  try {
+    const t = JSON.parse(localStorage.getItem('sp_tasks') || '{}');
+    Object.assign(tasks, t);
+  } catch(e) {}
+}
+
+loadStatuses();
+loadTasks();
+
+let activeFilter = 'all';
+
+function matchesFilter(subject) {
+  if (activeFilter === 'all') return true;
+  const style = resolveStyle(subject);
+  return style.filter === activeFilter;
+}
+
+function buildListView() {
+  const container = document.getElementById('list-rows');
+  container.innerHTML = '';
+  data.forEach((row, i) => {
+    const style = resolveStyle(row.subject);
+    const isExam = row.exam;
+    const isRevision = row.task && row.task.includes('Revision');
+    const visible = matchesFilter(row.subject);
+
+    const div = document.createElement('div');
+    div.className = 'list-row' + (isExam ? ' exam-row' : '') + (visible ? '' : ' hidden');
+    div.dataset.filter = style.filter;
+    div.style.setProperty('--subject-color', style.border);
+
+    let taskHtml = '';
+    if (isExam) {
+      taskHtml = `<span class="exam-badge">🎯 Exam Day</span>`;
+    } else {
+      const currentTask = tasks[i] || '';
+      taskHtml = `<input class="task-input" type="text" data-idx="${i}" value="${currentTask.replace(/"/g, '&quot;')}" placeholder="Add task or topic…">`;
+    }
+
+    div.innerHTML = `
+      <span class="col-date">${row.date}</span>
+      <span class="col-day">${row.day}</span>
+      <span class="col-subject">
+        <span class="subject-chip" style="background:${style.bg}; border:1px solid ${style.border}; color:${style.text}">
+          ${row.subject}
+        </span>
+      </span>
+      <span class="col-task">${taskHtml}</span>
+      <select class="status-select ${statuses[i]}" onchange="updateStatus(${i}, this)">
+        <option value="not-started" ${statuses[i]==='not-started'?'selected':''}>⬜ Not Started</option>
+        <option value="in-progress" ${statuses[i]==='in-progress'?'selected':''}>🔄 In Progress</option>
+        <option value="done" ${statuses[i]==='done'?'selected':''}>✅ Done</option>
+      </select>
+    `;
+    container.appendChild(div);
+  });
+
+  container.querySelectorAll('.task-input').forEach(input => {
+    input.addEventListener('change', () => {
+      const idx = parseInt(input.dataset.idx);
+      tasks[idx] = input.value;
+      saveTasks();
+    });
+  });
+}
+
+function updateStatus(i, sel) {
+  statuses[i] = sel.value;
+  sel.className = 'status-select ' + sel.value;
+  saveStatuses();
+  updateProgressCards();
+  updateHeaderCounts();
+}
+
+function updateProgressCards() {
+  const subjectOrder = ['Mathematics','Physical Sciences','Geography','Life Sciences','English','Afrikaans','Life Orientation','FAL'];
+  const counts = {};
+  subjectOrder.forEach(s => { counts[s] = { total: 0, done: 0 }; });
+
+  data.forEach((row, i) => {
+    let matched = null;
+    for (const s of subjectOrder) {
+      if (row.subject.includes(s.split(' ')[0])) { matched = s; break; }
+    }
+    if (!matched) return;
+    counts[matched].total++;
+    if (statuses[i] === 'done') counts[matched].done++;
+  });
+
+  const container = document.getElementById('progress-cards');
+  container.innerHTML = '';
+  subjectOrder.forEach(s => {
+    const c = counts[s];
+    if (c.total === 0) return;
+    const pct = Math.round((c.done / c.total) * 100);
+    const style = SUBJECTS[s];
+    const card = document.createElement('div');
+    card.className = 'progress-card';
+    card.innerHTML = `
+      <div class="progress-label" style="color:${style.text}">${s}</div>
+      <div class="progress-count">${c.done}<span style="font-size:0.8rem; color:var(--muted); font-weight:400"> / ${c.total}</span></div>
+      <div class="progress-bar-wrap"><div class="progress-bar" style="width:${pct}%; background:${style.border}"></div></div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function updateHeaderCounts() {
+  const done = Object.values(statuses).filter(s => s === 'done').length;
+  const exams = data.filter(r => r.exam).length;
+  document.getElementById('done-count').textContent = done;
+  document.getElementById('exam-count').textContent = exams;
+  document.getElementById('total-days').textContent = data.length;
+}
+
+function applyFilter(filter) {
+  activeFilter = filter;
+  document.querySelectorAll('.pill').forEach(p => {
+    if (filter === 'all') {
+      p.classList.add('active');
+    } else {
+      p.classList.toggle('active', p.dataset.filter === filter || p.dataset.filter === 'all');
+    }
+  });
+
+  document.querySelectorAll('.list-row').forEach(row => {
+    row.classList.toggle('hidden', filter !== 'all' && row.dataset.filter !== filter);
+  });
+  document.querySelectorAll('.cal-entry').forEach(entry => {
+    entry.style.display = (filter === 'all' || entry.dataset.filter === filter) ? '' : 'none';
+  });
+}
+
+document.querySelectorAll('.pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    const f = pill.dataset.filter;
+    if (f === 'all' || activeFilter === f) {
+      applyFilter('all');
+    } else {
+      applyFilter(f);
+    }
+  });
+});
+
+function switchView(view) {
+  document.querySelectorAll('.view-btn').forEach((b, i) => {
+    b.classList.toggle('active', (view === 'list' && i === 0) || (view === 'calendar' && i === 1));
+  });
+  document.getElementById('list-view').style.display = view === 'list' ? '' : 'none';
+  document.getElementById('cal-view').style.display = view === 'calendar' ? '' : 'none';
+}
+
+function buildCalendarView() {
+  const calView = document.getElementById('cal-view');
+  calView.innerHTML = '';
+
+  const months = [
+    { name: 'June 2026', year: 2026, month: 5 },
+    { name: 'July 2026', year: 2026, month: 6 },
+    { name: 'August 2026', year: 2026, month: 7 },
+  ];
+
+  months.forEach(({ name, year, month }) => {
+    const block = document.createElement('div');
+    block.className = 'month-block';
+    block.innerHTML = `<div class="month-title">${name}</div>`;
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    const weekDaysHtml = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d =>
+      `<div class="week-label">${d}</div>`).join('');
+    const grid = document.createElement('div');
+    grid.innerHTML = `<div class="week-grid">${weekDaysHtml}</div>`;
+
+    let cells = [];
+    for (let i = 0; i < firstDay; i++) cells.push(null);
+    for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+
+    const weeks = [];
+    for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
+
+    weeks.forEach(week => {
+      const weekGrid = document.createElement('div');
+      weekGrid.className = 'week-grid';
+      weekGrid.style.marginBottom = '0.4rem';
+
+      while (week.length < 7) week.push(null);
+      week.forEach(day => {
+        const cell = document.createElement('div');
+        if (day === null) {
+          cell.className = 'cal-cell empty';
+        } else {
+          cell.className = 'cal-cell';
+          const dateStr = `${String(day).padStart(2,'0')} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][month]} ${year}`;
+          const dayEntries = data.filter(r => r.date === dateStr);
+
+          cell.innerHTML = `<div class="cal-date">${day}</div>`;
+          dayEntries.forEach(r => {
+            const style = resolveStyle(r.subject);
+            const entry = document.createElement('div');
+            entry.className = 'cal-entry' + (r.exam ? ' exam' : '');
+            entry.dataset.filter = style.filter;
+            entry.style.background = style.bg;
+            entry.style.color = style.text;
+            entry.style.borderLeftColor = style.border;
+            entry.textContent = r.exam ? '🎯 ' + r.subject : r.subject;
+            cell.appendChild(entry);
+          });
+        }
+        weekGrid.appendChild(cell);
+      });
+      grid.appendChild(weekGrid);
+    });
+
+    block.appendChild(grid);
+    calView.appendChild(block);
+  });
+}
+
+buildListView();
+buildCalendarView();
+updateProgressCards();
+updateHeaderCounts();
+</script>
+</body>
+</html>
